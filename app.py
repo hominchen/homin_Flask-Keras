@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
 from flask import Flask, request, render_template
-# import numpy as np
-# import tensorflow as tf
-
 from keras.preprocessing.image import load_img, img_to_array
 from keras.applications.vgg16 import preprocess_input, decode_predictions,VGG16
-
+from keras.applications.resnet_v2 import ResNet50V2
 
 app = Flask(__name__)
-model = VGG16()
-
-# model = tf.compat.v1.keras.applications.vgg16.VGG16()
-# model.summary()
+# model = VGG16()
+model = ResNet50V2()
 
 @app.route("/")
 def hello():
@@ -21,25 +16,8 @@ def hello():
 @app.route('/', methods=['POST'])
 def predict():
     imagefile = request.files['imagefile']
-    image_path = "./images/" + imagefile.filename
+    image_path = "static/images/" + imagefile.filename
     imagefile.save(image_path)
-    
-    # 我的tensorflow
-    # img = tf.keras.preprocessing.image.load_img('image_path', 
-    # target_size=(224, 224))
-
-    # # 轉成numpy
-    # image = tf.keras.preprocessing.image.img_to_array(img)
-    # # 轉維度
-    # image = image.reshape((1, image.shape[0], 
-    #     image.shape[1], 
-    #     image.shape[2]))
-    # # 圖送入模型
-    # image = tf.compat.v1.keras.applications.vgg16.preprocess_input(image)
-    # # 預測
-    # predict2 = model.predict(image)
-    # predict = np.argmax(predict2[0])
-    # return render_template('index.html', predict)
 
     image = load_img(image_path, target_size=(224, 224))
     image = img_to_array(image)
@@ -51,7 +29,8 @@ def predict():
     classification = '%s (%.2f%%)' % (label[1], label[2]*100)
 
     return render_template('index.html', 
-        prediction=classification)
+        prediction=classification,
+        image_path=image_path)
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
